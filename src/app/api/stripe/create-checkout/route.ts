@@ -10,7 +10,16 @@ export async function POST(request: Request) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const info = await getSubscriptionInfo(userId);
+    let info;
+    try {
+      info = await getSubscriptionInfo(userId);
+    } catch (e) {
+      console.error("Subscription info error:", e);
+      return Response.json(
+        { error: "Could not check subscription status. Please try again." },
+        { status: 500 }
+      );
+    }
 
     if (info.status === "active") {
       return Response.json({ error: "Already subscribed" }, { status: 400 });
@@ -18,20 +27,31 @@ export async function POST(request: Request) {
 
     const { plan } = await request.json().catch(() => ({ plan: "monthly" }));
 
-    // Reuse existing Stripe customer or create new
     let customerId = info.stripeCustomerId;
     if (!customerId) {
-      const customer = await stripe.customers.create({
-        metadata: { clerk_user_id: userId },
-      });
-      customerId = customer.id;
+      try {
+        const customer = await stripe.customers.create({
+          metadata: { clerk_user_id: userId },
+        });
+        customerId = customer.id;
 
-      await supabase
-        .from("user_preferences")
-        .upsert(
-          { user_id: userId, stripe_customer_id: customerId, updated_at: new Date().toISOString() },
-          { onConflict: "user_id" }
+        await supabase
+          .from("user_preferences")
+          .upsert(
+            {
+              user_id: userId,
+              stripe_customer_id: customerId,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "user_id" }
+          );
+      } catch (e) {
+        console.error("Stripe customer creation error:", e);
+        return Response.json(
+          { error: "Could not set up payment. Please try again." },
+          { status: 500 }
         );
+      }
     }
 
     const priceId =
@@ -40,15 +60,21 @@ export async function POST(request: Request) {
         : process.env.STRIPE_PRICE_ID_MONTHLY;
 
     if (!priceId) {
-      return Response.json({ error: "Pricing not configured" }, { status: 500 });
+      console.error("Missing price ID. MONTHLY:", process.env.STRIPE_PRICE_ID_MONTHLY, "YEARLY:", process.env.STRIPE_PRICE_ID_YEARLY);
+      return Response.json(
+        { error: "Pricing not configured. Please contact support." },
+        { status: 500 }
+      );
     }
+
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000";
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/dashboard?upgraded=true`,
-      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/upgrade`,
+      success_url: `${siteUrl}/dashboard?upgraded=true`,
+      cancel_url: `${siteUrl}/upgrade`,
       metadata: { clerk_user_id: userId },
       subscription_data: {
         metadata: { clerk_user_id: userId },
@@ -58,6 +84,9 @@ export async function POST(request: Request) {
     return Response.json({ url: session.url });
   } catch (err) {
     console.error("Create checkout error:", err);
-    return Response.json({ error: "Something went wrong." }, { status: 500 });
+    return Response.json(
+      { error: "Something went wrong setting up checkout. Please try again." },
+      { status: 500 }
+    );
   }
 }
