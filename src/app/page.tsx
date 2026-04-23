@@ -66,7 +66,9 @@ export default function LandingPage() {
     }
   }, [isLoaded, isSignedIn, router]);
 
-  if (!isLoaded || isSignedIn) return null;
+  // If signed in and loaded, redirect happens via useEffect above
+  // Don't block rendering while Clerk loads — show the landing page immediately
+  if (isLoaded && isSignedIn) return null;
 
   return (
     <div className="bg-[#0f0f0f] text-white">
