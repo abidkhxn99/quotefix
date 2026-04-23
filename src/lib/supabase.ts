@@ -5,8 +5,22 @@ let _supabase: SupabaseClient | null = null;
 export function getSupabase(): SupabaseClient {
   if (!_supabase) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    // Try multiple possible env var names
+    const key =
+      process.env.SUPABASE_SERVICE_ROLE_KEY ||
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+      process.env.SUPABASE_KEY ||
+      process.env.SUPABASE_ANON_KEY;
+
     if (!url || !key) {
+      console.error(
+        "Supabase config missing. URL:",
+        url ? "set" : "MISSING",
+        "| SUPABASE_SERVICE_ROLE_KEY:",
+        process.env.SUPABASE_SERVICE_ROLE_KEY ? "set" : "MISSING",
+        "| NEXT_PUBLIC_SUPABASE_ANON_KEY:",
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? "set" : "MISSING"
+      );
       throw new Error("Supabase environment variables not configured");
     }
     _supabase = createClient(url, key);
@@ -14,7 +28,6 @@ export function getSupabase(): SupabaseClient {
   return _supabase;
 }
 
-// For backward compatibility with existing imports
 export const supabase = new Proxy({} as SupabaseClient, {
   get(_target, prop) {
     const client = getSupabase();
