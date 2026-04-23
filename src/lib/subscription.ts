@@ -12,15 +12,25 @@ export interface SubscriptionInfo {
 export async function getSubscriptionInfo(
   userId: string
 ): Promise<SubscriptionInfo> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("user_preferences")
     .select("subscription_status, document_count, stripe_customer_id")
     .eq("user_id", userId)
-    .single();
+    .maybeSingle();
 
-  const status = data?.subscription_status || "free";
-  const documentCount = data?.document_count || 0;
-  const stripeCustomerId = data?.stripe_customer_id || null;
+  // No row yet — new user, treat as free tier with 0 docs
+  if (error || !data) {
+    return {
+      status: "free",
+      documentCount: 0,
+      canCreate: true,
+      stripeCustomerId: null,
+    };
+  }
+
+  const status = data.subscription_status || "free";
+  const documentCount = data.document_count || 0;
+  const stripeCustomerId = data.stripe_customer_id || null;
 
   const canCreate =
     status === "active" || documentCount < FREE_DOCUMENT_LIMIT;
@@ -33,7 +43,7 @@ export async function incrementDocumentCount(userId: string): Promise<void> {
     .from("user_preferences")
     .select("document_count")
     .eq("user_id", userId)
-    .single();
+    .maybeSingle();
 
   const current = data?.document_count || 0;
 
