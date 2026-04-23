@@ -1,0 +1,125 @@
+"use client";
+
+import { useState } from "react";
+import { TERMS_LIBRARY } from "@/lib/terms-library";
+
+interface TermsBuilderProps {
+  selectedTerms: string[];
+  customTerms: string[];
+  onSelectedChange: (terms: string[]) => void;
+  onCustomChange: (terms: string[]) => void;
+}
+
+export default function TermsBuilder({
+  selectedTerms,
+  customTerms,
+  onSelectedChange,
+  onCustomChange,
+}: TermsBuilderProps) {
+  const [customInput, setCustomInput] = useState("");
+
+  function toggleTerm(term: string) {
+    if (selectedTerms.includes(term)) {
+      onSelectedChange(selectedTerms.filter((t) => t !== term));
+    } else {
+      onSelectedChange([...selectedTerms, term]);
+    }
+  }
+
+  function addCustomTerm() {
+    const trimmed = customInput.trim();
+    if (!trimmed) return;
+    if (customTerms.includes(trimmed)) return;
+    onCustomChange([...customTerms, trimmed]);
+    setCustomInput("");
+  }
+
+  function removeCustomTerm(term: string) {
+    onCustomChange(customTerms.filter((t) => t !== term));
+  }
+
+  return (
+    <div className="space-y-5">
+      {/* Pre-written terms by category */}
+      {TERMS_LIBRARY.map((category) => (
+        <div key={category.name}>
+          <p className="text-sm font-semibold text-orange-400 mb-2">
+            {category.name}
+          </p>
+          <div className="space-y-1.5">
+            {category.terms.map((term) => (
+              <label
+                key={term}
+                className="flex items-start gap-3 cursor-pointer group"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedTerms.includes(term)}
+                  onChange={() => toggleTerm(term)}
+                  className="h-4 w-4 mt-0.5 rounded border-[#444] bg-[#222] text-orange-500 focus:ring-orange-500 cursor-pointer shrink-0"
+                />
+                <span className="text-sm text-zinc-300 group-hover:text-white transition-colors leading-snug">
+                  {term}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      {/* Custom terms */}
+      <div>
+        <p className="text-sm font-semibold text-orange-400 mb-2">
+          Add your own terms
+        </p>
+        <div className="flex gap-2">
+          <input
+            value={customInput}
+            onChange={(e) => setCustomInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                addCustomTerm();
+              }
+            }}
+            placeholder="Type a custom term..."
+            className="flex-1 rounded-lg bg-[#222] border border-[#333] px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+          />
+          <button
+            type="button"
+            onClick={addCustomTerm}
+            className="bg-orange-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-orange-600 transition-colors shrink-0"
+          >
+            Add
+          </button>
+        </div>
+
+        {customTerms.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-3">
+            {customTerms.map((term, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center gap-1.5 bg-[#1a1a1a] border border-orange-500/40 text-white text-sm px-3 py-1.5 rounded-lg"
+              >
+                {term}
+                <button
+                  type="button"
+                  onClick={() => removeCustomTerm(term)}
+                  className="text-zinc-500 hover:text-red-400 transition-colors ml-0.5"
+                >
+                  &times;
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Summary */}
+      <p className="text-xs text-zinc-500">
+        {selectedTerms.length + customTerms.length} term
+        {selectedTerms.length + customTerms.length !== 1 ? "s" : ""} selected
+      </p>
+    </div>
+  );
+}
