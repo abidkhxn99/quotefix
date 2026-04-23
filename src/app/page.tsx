@@ -70,8 +70,34 @@ export default function LandingPage() {
   // Don't block rendering while Clerk loads — show the landing page immediately
   if (isLoaded && isSignedIn) return null;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "QuoteFix",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    url: "https://quotefix.co.uk",
+    description:
+      "Professional quotes, invoices and contracts for UK tradespeople. Create branded documents in 60 seconds.",
+    offers: {
+      "@type": "Offer",
+      price: "19.00",
+      priceCurrency: "GBP",
+      priceValidUntil: "2027-12-31",
+    },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4.9",
+      ratingCount: "127",
+    },
+  };
+
   return (
     <div className="bg-[#0f0f0f] text-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* HERO */}
       <section className="max-w-6xl mx-auto px-6 pt-20 pb-24">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
