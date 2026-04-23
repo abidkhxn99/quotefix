@@ -9,6 +9,8 @@ export const quoteFormSchema = z.object({
   docType: z.enum(["quote", "invoice", "contract"]),
   docNumber: z.string().max(50, "Document number too long").default(""),
   companyName: z.string().max(100, "Company name too long").default(""),
+  companyNumber: z.string().max(20, "Company number too long").default(""),
+  vatNumber: z.string().max(20, "VAT number too long").default(""),
   tradesmanName: z
     .string()
     .min(1, "Tradesman name required")

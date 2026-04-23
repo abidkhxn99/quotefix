@@ -7,6 +7,8 @@ import TermsBuilder from "@/components/TermsBuilder";
 
 interface Settings {
   companyName: string;
+  companyNumber: string;
+  vatNumber: string;
   tradesmanName: string;
   phone: string;
   email: string;
@@ -39,6 +41,8 @@ export default function SettingsPage() {
 
   const [settings, setSettings] = useState<Settings>({
     companyName: "",
+    companyNumber: "",
+    vatNumber: "",
     tradesmanName: "",
     phone: "",
     email: "",
@@ -198,6 +202,24 @@ export default function SettingsPage() {
                 onChange={(e) => update("website", e.target.value)}
                 className={inputClass}
                 placeholder="www.example.com"
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Company Number (optional)</label>
+              <input
+                value={settings.companyNumber}
+                onChange={(e) => update("companyNumber", e.target.value)}
+                className={inputClass}
+                placeholder="e.g. 12345678"
+              />
+            </div>
+            <div>
+              <label className={labelClass}>VAT Number (optional)</label>
+              <input
+                value={settings.vatNumber}
+                onChange={(e) => update("vatNumber", e.target.value)}
+                className={inputClass}
+                placeholder="e.g. GB123456789"
               />
             </div>
           </div>

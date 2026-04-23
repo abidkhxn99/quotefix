@@ -28,6 +28,8 @@ export async function GET() {
         website: "",
         logoDataUrl: "",
         brandColour: "#f97316",
+        companyNumber: "",
+        vatNumber: "",
         vatRegistered: false,
         docPrefix: "QF",
         docCounter: 1,
@@ -40,6 +42,8 @@ export async function GET() {
 
     return Response.json({
       companyName: data.company_name || "",
+      companyNumber: data.company_number || "",
+      vatNumber: data.vat_number || "",
       tradesmanName: data.tradesman_name || "",
       phone: data.phone || "",
       email: data.email || "",

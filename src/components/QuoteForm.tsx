@@ -2,6 +2,7 @@
 
 import { useForm, useFieldArray } from "react-hook-form";
 import { useRef, useState, useEffect } from "react";
+import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { QuoteFormData, DocType } from "@/types/quote";
 import TermsBuilder from "@/components/TermsBuilder";
 
@@ -69,6 +70,8 @@ export default function QuoteForm({ onSubmit, loading }: QuoteFormProps) {
       docNumber: "",
       brandColour: "#f97316",
       logoDataUrl: "",
+      companyNumber: "",
+      vatNumber: "",
       vatRegistered: false,
       selectedTerms: [],
       customTerms: [],
@@ -91,6 +94,8 @@ export default function QuoteForm({ onSubmit, loading }: QuoteFormProps) {
         // Business profile
         if (data.companyName) setValue("companyName", data.companyName);
         if (data.tradesmanName) setValue("tradesmanName", data.tradesmanName);
+        if (data.companyNumber) setValue("companyNumber", data.companyNumber);
+        if (data.vatNumber) setValue("vatNumber", data.vatNumber);
 
         // Branding
         if (data.logoDataUrl) {
@@ -115,6 +120,18 @@ export default function QuoteForm({ onSubmit, loading }: QuoteFormProps) {
       })
       .catch(() => {})
       .finally(() => setPrefsLoaded(true));
+
+    // Capture device fingerprint for abuse prevention
+    FingerprintJS.load()
+      .then((fp) => fp.get())
+      .then((result) => {
+        fetch("/api/fingerprint", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fingerprint: result.visitorId }),
+        }).catch(() => {});
+      })
+      .catch(() => {});
   }, [setValue]);
 
   const { fields, append, remove } = useFieldArray({
@@ -312,6 +329,24 @@ export default function QuoteForm({ onSubmit, loading }: QuoteFormProps) {
               <p className="text-red-400 text-xs mt-1">Required</p>
             )}
           </div>
+          <div>
+            <label className={labelClass}>Company Number (optional)</label>
+            <input
+              {...register("companyNumber")}
+              className={inputClass}
+              placeholder="e.g. 12345678"
+            />
+          </div>
+          {vatRegistered && (
+            <div>
+              <label className={labelClass}>VAT Number (optional)</label>
+              <input
+                {...register("vatNumber")}
+                className={inputClass}
+                placeholder="e.g. GB123456789"
+              />
+            </div>
+          )}
           <div>
             <label className={labelClass}>Brand Colour</label>
             <div className="flex items-center gap-3">

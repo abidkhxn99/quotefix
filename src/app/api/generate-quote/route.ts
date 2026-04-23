@@ -5,6 +5,7 @@ import { quoteFormSchema } from "@/lib/validation";
 import { checkRateLimit, RATE_LIMITS, rateLimitResponse } from "@/lib/rate-limit";
 import { validateEnv } from "@/lib/env";
 import { getSubscriptionInfo, incrementDocumentCount } from "@/lib/subscription";
+import { checkAbuse, getEffectiveLimit } from "@/lib/abuse-prevention";
 import { LineItem } from "@/types/quote";
 
 const anthropic = new Anthropic();
@@ -25,7 +26,34 @@ export async function POST(request: Request) {
 
     // 2b. Subscription check
     const subInfo = await getSubscriptionInfo(userId);
-    if (!subInfo.canCreate) {
+
+    // 2c. Abuse prevention (free tier only)
+    if (subInfo.status !== "active") {
+      const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "";
+      const abuseCheck = await checkAbuse(userId, ip, "");
+
+      if (abuseCheck.cooldownActive) {
+        return Response.json(
+          { error: "upgrade_required", message: "You've reached your free document limit. Upgrade to continue or try again tomorrow." },
+          { status: 403 }
+        );
+      }
+
+      if (!abuseCheck.allowed) {
+        return Response.json(
+          { error: "upgrade_required", message: "Free trial not available. Please upgrade to continue." },
+          { status: 403 }
+        );
+      }
+
+      const effectiveLimit = getEffectiveLimit(abuseCheck.reducedLimit, 3);
+      if (subInfo.documentCount >= effectiveLimit) {
+        return Response.json(
+          { error: "upgrade_required", message: `You've used all ${effectiveLimit} free document${effectiveLimit === 1 ? "" : "s"}. Upgrade to continue.` },
+          { status: 403 }
+        );
+      }
+    } else if (!subInfo.canCreate) {
       return Response.json(
         { error: "upgrade_required", message: "You've used all 3 free documents. Upgrade to continue." },
         { status: 403 }
@@ -107,6 +135,8 @@ export async function POST(request: Request) {
         doc_type: docType,
         user_id: userId,
         company_name: formData.companyName,
+        company_number: formData.companyNumber || "",
+        vat_number: formData.vatNumber || "",
         tradesman_name: formData.tradesmanName,
         brand_colour: formData.brandColour,
         logo_url: logoToStore,

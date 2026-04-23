@@ -40,6 +40,8 @@ export function SavedQuotePreview({ quote }: SavedQuotePreviewProps) {
     docType: quote.doc_type || "quote",
     docNumber: quote.quote_number,
     companyName: quote.company_name,
+    companyNumber: quote.company_number || "",
+    vatNumber: quote.vat_number || "",
     tradesmanName: quote.tradesman_name,
     brandColour: quote.brand_colour || "#f97316",
     logoDataUrl: quote.logo_url || "",
@@ -156,6 +158,12 @@ export default function QuotePreview({
               <p className="text-sm mt-1 opacity-80">{quoteNumber}</p>
             )}
             <p className="text-sm opacity-80">{formData.tradesmanName}</p>
+            {formData.companyNumber && (
+              <p className="text-xs opacity-60">Co. No. {formData.companyNumber}</p>
+            )}
+            {formData.vatNumber && (
+              <p className="text-xs opacity-60">VAT No. {formData.vatNumber}</p>
+            )}
           </div>
           <div className="text-right text-sm opacity-80">
             <p>Date: {today}</p>

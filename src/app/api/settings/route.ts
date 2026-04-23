@@ -5,6 +5,8 @@ import { z } from "zod";
 
 const settingsSchema = z.object({
   companyName: z.string().max(100).default(""),
+  companyNumber: z.string().max(20).default(""),
+  vatNumber: z.string().max(20).default(""),
   tradesmanName: z.string().max(100).default(""),
   phone: z.string().max(30).default(""),
   email: z.string().max(254).default(""),
@@ -46,6 +48,8 @@ export async function GET() {
         website: "",
         logoDataUrl: "",
         brandColour: "#f97316",
+        companyNumber: "",
+        vatNumber: "",
         vatRegistered: false,
         docPrefix: "QF",
         docCounter: 1,
@@ -58,6 +62,8 @@ export async function GET() {
 
     return Response.json({
       companyName: data.company_name || "",
+      companyNumber: data.company_number || "",
+      vatNumber: data.vat_number || "",
       tradesmanName: data.tradesman_name || "",
       phone: data.phone || "",
       email: data.email || "",
@@ -110,6 +116,8 @@ export async function POST(request: Request) {
       {
         user_id: userId,
         company_name: d.companyName,
+        company_number: d.companyNumber,
+        vat_number: d.vatNumber,
         tradesman_name: d.tradesmanName,
         phone: d.phone,
         email: d.email,

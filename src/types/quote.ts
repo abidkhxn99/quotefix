@@ -22,6 +22,8 @@ export interface QuoteFormData {
   labourDays: number;
   dayRate: number;
   materials: MaterialItem[];
+  companyNumber: string;
+  vatNumber: string;
   vatRegistered: boolean;
   selectedTerms: string[];
   customTerms: string[];
@@ -67,6 +69,8 @@ export interface SavedQuote {
   materials: MaterialItem[];
   labour_total: number;
   materials_total: number;
+  company_number: string;
+  vat_number: string;
   vat_registered: boolean;
   subtotal: number;
   vat: number;
