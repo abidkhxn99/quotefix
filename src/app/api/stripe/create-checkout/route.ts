@@ -1,7 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
-import { stripe } from "@/lib/stripe";
-import { getSubscriptionInfo } from "@/lib/subscription";
 import { supabase } from "@/lib/supabase";
+import Stripe from "stripe";
 
 export async function POST(request: Request) {
   try {
@@ -10,49 +9,7 @@ export async function POST(request: Request) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    let info;
-    try {
-      info = await getSubscriptionInfo(userId);
-    } catch (e) {
-      console.error("Subscription info error:", e);
-      return Response.json(
-        { error: "Could not check subscription status. Please try again." },
-        { status: 500 }
-      );
-    }
-
-    if (info.status === "active") {
-      return Response.json({ error: "Already subscribed" }, { status: 400 });
-    }
-
     const { plan } = await request.json().catch(() => ({ plan: "monthly" }));
-
-    let customerId = info.stripeCustomerId;
-    if (!customerId) {
-      try {
-        const customer = await stripe.customers.create({
-          metadata: { clerk_user_id: userId },
-        });
-        customerId = customer.id;
-
-        await supabase
-          .from("user_preferences")
-          .upsert(
-            {
-              user_id: userId,
-              stripe_customer_id: customerId,
-              updated_at: new Date().toISOString(),
-            },
-            { onConflict: "user_id" }
-          );
-      } catch (e) {
-        console.error("Stripe customer creation error:", e);
-        return Response.json(
-          { error: "Could not set up payment. Please try again." },
-          { status: 500 }
-        );
-      }
-    }
 
     const priceId =
       plan === "yearly"
@@ -60,16 +17,61 @@ export async function POST(request: Request) {
         : process.env.STRIPE_PRICE_ID_MONTHLY;
 
     if (!priceId) {
-      console.error("Missing price ID. MONTHLY:", process.env.STRIPE_PRICE_ID_MONTHLY, "YEARLY:", process.env.STRIPE_PRICE_ID_YEARLY);
       return Response.json(
         { error: "Pricing not configured. Please contact support." },
         { status: 500 }
       );
     }
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000";
+    // Init Stripe directly to avoid proxy issues
+    const stripeKey = process.env.STRIPE_SECRET_KEY;
+    if (!stripeKey) {
+      return Response.json(
+        { error: "Payment system not configured." },
+        { status: 500 }
+      );
+    }
+    const stripeClient = new Stripe(stripeKey, { typescript: true });
 
-    const session = await stripe.checkout.sessions.create({
+    // Check for existing Stripe customer
+    let customerId: string | undefined;
+    try {
+      const { data } = await supabase
+        .from("user_preferences")
+        .select("stripe_customer_id")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      customerId = data?.stripe_customer_id || undefined;
+    } catch {
+      // Ignore — will create new customer
+    }
+
+    if (!customerId) {
+      const customer = await stripeClient.customers.create({
+        metadata: { clerk_user_id: userId },
+      });
+      customerId = customer.id;
+
+      await supabase
+        .from("user_preferences")
+        .upsert(
+          {
+            user_id: userId,
+            stripe_customer_id: customerId,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "user_id" }
+        );
+    }
+
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      (process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3000");
+
+    const session = await stripeClient.checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
