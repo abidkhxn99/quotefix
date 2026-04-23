@@ -191,15 +191,7 @@ function DocMenu({
   );
 }
 
-export default function DashboardPage() {
-  return (
-    <Suspense>
-      <Dashboard />
-    </Suspense>
-  );
-}
-
-function Dashboard() {
+function DashboardContent() {
   const { isSignedIn, isLoaded } = useUser();
   const dashRouter = useRouter();
   const searchParams = useSearchParams();
@@ -221,18 +213,22 @@ function Dashboard() {
 
     fetch("/api/quotes")
       .then((res) => res.json())
-      .then((data) => setQuotes(data))
+      .then((data) => {
+        if (Array.isArray(data)) setQuotes(data);
+      })
+      .catch(() => {})
       .finally(() => setLoading(false));
 
     fetch("/api/subscription")
       .then((res) => res.json())
       .then((data) => {
         if (!data.error) {
-          setSubStatus(data.status);
-          setDocCount(data.documentCount);
-          setFreeLimit(data.freeLimit);
+          setSubStatus(data.status || "free");
+          setDocCount(data.documentCount || 0);
+          setFreeLimit(data.freeLimit || 3);
         }
-      });
+      })
+      .catch(() => {});
   }, [isSignedIn, isLoaded]);
 
   useEffect(() => {
@@ -250,13 +246,20 @@ function Dashboard() {
     }
   }
 
-  if (!isLoaded || !isSignedIn) return null;
+  if (!isLoaded) {
+    return (
+      <div className="max-w-6xl mx-auto px-6 py-10">
+        <p className="text-zinc-500 text-sm">Loading...</p>
+      </div>
+    );
+  }
+
+  if (!isSignedIn) return null;
 
   const showFreeBanner = subStatus !== "active";
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10 w-full">
-      {/* Free tier banner */}
       {showFreeBanner && (
         <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4 mb-6 flex items-center justify-between">
           <p className="text-zinc-300 text-sm">
@@ -366,5 +369,19 @@ function Dashboard() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="max-w-6xl mx-auto px-6 py-10">
+          <p className="text-zinc-500 text-sm">Loading...</p>
+        </div>
+      }
+    >
+      <DashboardContent />
+    </Suspense>
   );
 }
