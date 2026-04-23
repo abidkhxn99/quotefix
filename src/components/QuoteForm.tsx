@@ -5,6 +5,8 @@ import { useRef, useState, useEffect } from "react";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { QuoteFormData, DocType } from "@/types/quote";
 import TermsBuilder from "@/components/TermsBuilder";
+import { useTheme } from "@/components/ThemeProvider";
+import { getThemeClasses } from "@/lib/theme-classes";
 
 const JOB_TYPES = [
   "Building / Construction",
@@ -220,12 +222,14 @@ export default function QuoteForm({ onSubmit, loading }: QuoteFormProps) {
     onSubmit(data);
   }
 
+  const { dark } = useTheme();
+  const tc = getThemeClasses(dark);
+
   const inputClass =
-    "w-full rounded-lg bg-[#222] border border-[#333] px-3 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors";
-  const labelClass = "block text-sm font-medium text-zinc-300 mb-1";
-  const cardClass =
-    "bg-[#1a1a1a] border border-[#2a2a2a] border-l-2 border-l-orange-500 rounded-xl p-6";
-  const sectionTitle = "text-lg font-semibold text-white mb-4 tracking-wide";
+    `w-full rounded-lg ${tc.input} border px-3 py-2.5 text-sm focus:outline-none ${tc.inputFocus} transition-colors`;
+  const labelClass = `block text-sm font-medium ${tc.label} mb-1`;
+  const cardClass = `${tc.cardAccent} rounded-xl p-6`;
+  const sectionTitle = `text-lg font-semibold ${tc.heading} mb-4 tracking-wide`;
 
   const submitLabel =
     docType === "invoice"
@@ -250,7 +254,7 @@ export default function QuoteForm({ onSubmit, loading }: QuoteFormProps) {
               className={`p-4 rounded-lg border-2 text-left transition-all ${
                 docType === type
                   ? "border-orange-500 bg-orange-500/10"
-                  : "border-[#333] hover:border-[#444] bg-[#222]"
+                  : `${dark?"border-[#333] bg-[#222] hover:border-[#444]":"border-zinc-200 bg-zinc-50 hover:border-zinc-300"}`
               }`}
             >
               <p className="font-semibold text-sm text-white">
@@ -611,7 +615,7 @@ export default function QuoteForm({ onSubmit, loading }: QuoteFormProps) {
       </div>
 
       {/* VAT Toggle */}
-      <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5">
+      <div className={`${tc.vatBox} rounded-xl p-5`}>
         <label
           htmlFor="vatRegistered"
           className="flex items-center gap-3 cursor-pointer"
@@ -620,10 +624,10 @@ export default function QuoteForm({ onSubmit, loading }: QuoteFormProps) {
             type="checkbox"
             id="vatRegistered"
             {...register("vatRegistered")}
-            className="h-5 w-5 rounded border-[#333] bg-[#222] text-orange-500 focus:ring-orange-500 cursor-pointer"
+            className={`h-5 w-5 rounded ${dark?"border-[#333] bg-[#222]":"border-zinc-300 bg-white"} text-orange-500 focus:ring-orange-500 cursor-pointer`}
           />
           <div>
-            <span className="font-semibold text-white">VAT registered</span>
+            <span className={`font-semibold ${tc.heading}`}>VAT registered</span>
             <span className="text-zinc-400 text-sm ml-2">
               Tick to add 20% VAT to the total
             </span>
@@ -644,26 +648,26 @@ export default function QuoteForm({ onSubmit, loading }: QuoteFormProps) {
       </div>
 
       {/* Running Total */}
-      <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6">
+      <div className={`${tc.totalBox} rounded-xl p-6`}>
         <div className="space-y-2 text-sm">
-          <div className="flex justify-between text-white">
+          <div className={`flex justify-between ${tc.heading}`}>
             <span>
               Labour ({labourDays} days x &pound;{dayRate.toFixed(2)})
             </span>
             <span>&pound;{labourTotal.toFixed(2)}</span>
           </div>
           {materialsTotal > 0 && (
-            <div className="flex justify-between text-white">
+            <div className={`flex justify-between ${tc.heading}`}>
               <span>Materials</span>
               <span>&pound;{materialsTotal.toFixed(2)}</span>
             </div>
           )}
-          <div className="flex justify-between text-white">
+          <div className={`flex justify-between ${tc.heading}`}>
             <span>Subtotal</span>
             <span>&pound;{subtotal.toFixed(2)}</span>
           </div>
           {vatRegistered && (
-            <div className="flex justify-between text-white">
+            <div className={`flex justify-between ${tc.heading}`}>
               <span>VAT (20%)</span>
               <span>&pound;{vat.toFixed(2)}</span>
             </div>

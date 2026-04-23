@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
-import { dark } from "@clerk/themes";
+import { dark as clerkDark } from "@clerk/themes";
 import Navbar from "@/components/Navbar";
+import ThemeProvider from "@/components/ThemeProvider";
 import "./globals.css";
 
 const bebasNeue = Bebas_Neue({
@@ -102,9 +103,11 @@ export default function RootLayout({
       className={`${bebasNeue.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <ClerkProvider appearance={{ baseTheme: dark }}>
-          <Navbar />
-          {children}
+        <ClerkProvider appearance={{ baseTheme: clerkDark }}>
+          <ThemeProvider>
+            <Navbar />
+            {children}
+          </ThemeProvider>
         </ClerkProvider>
       </body>
     </html>

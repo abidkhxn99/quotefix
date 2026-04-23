@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { getTermsForDocType } from "@/lib/terms-library";
 import { DocType } from "@/types/quote";
+import { useTheme } from "@/components/ThemeProvider";
+import { getThemeClasses } from "@/lib/theme-classes";
 
 interface TermsBuilderProps {
   selectedTerms: string[];
@@ -19,6 +21,8 @@ export default function TermsBuilder({
   onCustomChange,
   docType,
 }: TermsBuilderProps) {
+  const { dark } = useTheme();
+  const t = getThemeClasses(dark);
   const categories = getTermsForDocType(docType || "quote");
   const [customInput, setCustomInput] = useState("");
 
@@ -60,9 +64,9 @@ export default function TermsBuilder({
                   type="checkbox"
                   checked={selectedTerms.includes(term)}
                   onChange={() => toggleTerm(term)}
-                  className="h-4 w-4 mt-0.5 rounded border-[#444] bg-[#222] text-orange-500 focus:ring-orange-500 cursor-pointer shrink-0"
+                  className={`h-4 w-4 mt-0.5 rounded ${dark?"border-[#444] bg-[#222]":"border-zinc-300 bg-white"} text-orange-500 focus:ring-orange-500 cursor-pointer shrink-0`}
                 />
-                <span className="text-sm text-zinc-300 group-hover:text-white transition-colors leading-snug">
+                <span className={`text-sm ${t.body} group-hover:${dark?"text-white":"text-zinc-900"} transition-colors leading-snug`}>
                   {term}
                 </span>
               </label>
@@ -87,7 +91,7 @@ export default function TermsBuilder({
               }
             }}
             placeholder="Type a custom term..."
-            className="flex-1 rounded-lg bg-[#222] border border-[#333] px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+            className={`flex-1 rounded-lg ${t.input} border px-3 py-2 text-sm focus:outline-none ${t.inputFocus}`}
           />
           <button
             type="button"
@@ -103,7 +107,7 @@ export default function TermsBuilder({
             {customTerms.map((term, i) => (
               <span
                 key={i}
-                className="inline-flex items-center gap-1.5 bg-[#1a1a1a] border border-orange-500/40 text-white text-sm px-3 py-1.5 rounded-lg"
+                className={`inline-flex items-center gap-1.5 ${dark?"bg-[#1a1a1a]":"bg-orange-50"} border border-orange-500/40 ${t.heading} text-sm px-3 py-1.5 rounded-lg`}
               >
                 {term}
                 <button

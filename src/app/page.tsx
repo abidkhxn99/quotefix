@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -33,15 +33,7 @@ function ViewerCount() {
   return <p className="text-sm mt-3 flex items-center justify-center gap-1.5 opacity-60"><span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse"/>{c} people viewing this right now</p>;
 }
 
-/* ── theme hook ── */
-function useTheme() {
-  const [dark, setDark] = useState(false);
-  useEffect(() => { setDark(localStorage.getItem("qf-theme") === "dark"); }, []);
-  const toggle = useCallback(() => {
-    setDark(prev => { const next = !prev; localStorage.setItem("qf-theme", next ? "dark" : "light"); return next; });
-  }, []);
-  return { dark, toggle };
-}
+import { useTheme } from "@/components/ThemeProvider";
 
 /* ── main ── */
 export default function LandingPage() {

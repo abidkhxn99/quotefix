@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTheme } from "@/components/ThemeProvider";
+import { getThemeClasses } from "@/lib/theme-classes";
 
 const heading = { fontFamily: "var(--font-bebas-neue)" };
 
@@ -40,20 +42,23 @@ export default function UpgradePage() {
     }
   }
 
+  const { dark } = useTheme();
+  const t = getThemeClasses(dark);
+
   if (!isLoaded || !isSignedIn) return null;
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-16">
+    <div className={`max-w-6xl mx-auto px-6 py-16 min-h-screen ${t.pageBg} transition-colors`}>
       <div className="max-w-md mx-auto text-center">
         <h1
-          className="text-5xl tracking-wide text-white mb-4"
+          className={`text-5xl tracking-wide ${t.heading} mb-4`}
           style={heading}
         >
           UNLIMITED QUOTES,
           <br />
           <span className="text-orange-500">INVOICES & CONTRACTS</span>
         </h1>
-        <p className="text-zinc-400 mb-8">
+        <p className={`${t.muted} mb-8`}>
           You&apos;ve used your 3 free documents. Upgrade to QuoteFix Pro for
           unlimited access.
         </p>
@@ -83,7 +88,7 @@ export default function UpgradePage() {
           </button>
         </div>
 
-        <div className="bg-[#1a1a1a] border-2 border-orange-500 rounded-2xl p-8">
+        <div className={`${t.cardBg} border-2 border-orange-500 rounded-2xl p-8`}>
           <div className="text-center mb-8">
             <p className="text-zinc-500 text-sm line-through mb-1">
               {plan === "monthly" ? "\u00A325/month" : "\u00A3300/year"}

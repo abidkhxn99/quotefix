@@ -6,6 +6,8 @@ import { useUser } from "@clerk/nextjs";
 import QuoteForm from "@/components/QuoteForm";
 import QuotePreview from "@/components/QuotePreview";
 import { QuoteFormData, GeneratedQuote, DocType } from "@/types/quote";
+import { useTheme } from "@/components/ThemeProvider";
+import { getThemeClasses } from "@/lib/theme-classes";
 
 const DOC_PATH: Record<DocType, string> = {
   quote: "q",
@@ -43,6 +45,9 @@ export default function NewQuotePage() {
       })
       .catch(() => setChecking(false));
   }, [isLoaded, isSignedIn, router]);
+
+  const { dark } = useTheme();
+  const t = getThemeClasses(dark);
 
   if (!isLoaded || !isSignedIn || checking) return null;
 
@@ -87,17 +92,17 @@ export default function NewQuotePage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10 w-full">
+    <div className={`max-w-6xl mx-auto px-6 py-10 w-full min-h-screen ${t.pageBg} transition-colors`}>
       {!quote ? (
         <div className="max-w-2xl mx-auto">
           <div className="mb-8">
             <h2
-              className="text-4xl text-white tracking-wide"
+              className={`text-4xl ${t.heading} tracking-wide`}
               style={{ fontFamily: "var(--font-bebas-neue)" }}
             >
               CREATE A DOCUMENT
             </h2>
-            <p className="text-zinc-400 mt-1 text-sm">
+            <p className={`${t.muted} mt-1 text-sm`}>
               Fill in the details to generate a professional quote, invoice, or
               contract.
             </p>

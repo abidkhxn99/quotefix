@@ -4,6 +4,8 @@ import { Suspense, useEffect, useState, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTheme } from "@/components/ThemeProvider";
+import { getThemeClasses } from "@/lib/theme-classes";
 
 interface QuoteSummary {
   id: string;
@@ -38,6 +40,8 @@ function DocMenu({
   const [linkCopied, setLinkCopied] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const { dark } = useTheme();
+  const t = getThemeClasses(dark);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -74,7 +78,7 @@ function DocMenu({
       </button>
 
       {open && (
-        <div className="absolute right-0 top-10 z-50 bg-[#222] border border-[#333] rounded-xl shadow-2xl py-1 w-44 overflow-hidden">
+        <div className={`absolute right-0 top-10 z-50 ${dark?"bg-[#222] border-[#333]":"bg-white border-zinc-200"} border rounded-xl shadow-2xl py-1 w-44 overflow-hidden`}>
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -82,7 +86,7 @@ function DocMenu({
               setOpen(false);
               router.push(docPath);
             }}
-            className="w-full text-left px-4 py-2.5 text-sm text-white hover:bg-[#2a2a2a] flex items-center gap-3 transition-colors"
+            className={`w-full text-left px-4 py-2.5 text-sm ${t.heading} ${dark?"hover:bg-[#2a2a2a]":"hover:bg-zinc-50"} flex items-center gap-3 transition-colors`}
           >
             <svg
               className="w-4 h-4 text-zinc-400"
@@ -112,7 +116,7 @@ function DocMenu({
               setOpen(false);
               window.open(docPath, "_blank");
             }}
-            className="w-full text-left px-4 py-2.5 text-sm text-white hover:bg-[#2a2a2a] flex items-center gap-3 transition-colors"
+            className={`w-full text-left px-4 py-2.5 text-sm ${t.heading} ${dark?"hover:bg-[#2a2a2a]":"hover:bg-zinc-50"} flex items-center gap-3 transition-colors`}
           >
             <svg
               className="w-4 h-4 text-zinc-400"
@@ -141,7 +145,7 @@ function DocMenu({
                 }, 1500);
               });
             }}
-            className="w-full text-left px-4 py-2.5 text-sm text-white hover:bg-[#2a2a2a] flex items-center gap-3 transition-colors"
+            className={`w-full text-left px-4 py-2.5 text-sm ${t.heading} ${dark?"hover:bg-[#2a2a2a]":"hover:bg-zinc-50"} flex items-center gap-3 transition-colors`}
           >
             <svg
               className="w-4 h-4 text-zinc-400"
@@ -158,7 +162,7 @@ function DocMenu({
             </svg>
             {linkCopied ? "\u2713 Copied!" : "Copy Share Link"}
           </button>
-          <div className="border-t border-[#333] my-1" />
+          <div className={`border-t ${t.border} my-1`} />
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -195,6 +199,8 @@ function DashboardContent() {
   const { isSignedIn, isLoaded } = useUser();
   const dashRouter = useRouter();
   const searchParams = useSearchParams();
+  const { dark } = useTheme();
+  const t = getThemeClasses(dark);
   const [quotes, setQuotes] = useState<QuoteSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [subStatus, setSubStatus] = useState("free");
@@ -260,16 +266,16 @@ function DashboardContent() {
   const showCharityBadge = subStatus === "active";
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10 w-full">
+    <div className={`max-w-6xl mx-auto px-6 py-10 w-full min-h-screen ${t.pageBg} transition-colors`}>
       {showCharityBadge && (
-        <p className="text-zinc-600 text-xs mb-4">
+        <p className={`${t.mutedMore} text-xs mb-4`}>
           <span className="text-red-400">&hearts;</span>{" "}
           Thanks to your subscription, QuoteFix donates to{" "}
           <a
             href="https://www.crisis.org.uk"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-zinc-500 hover:text-zinc-300 underline"
+            className={`${t.muted} hover:text-orange-500 underline`}
           >
             Crisis UK
           </a>{" "}
@@ -277,8 +283,8 @@ function DashboardContent() {
         </p>
       )}
       {showFreeBanner && (
-        <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <p className="text-zinc-300 text-sm">
+        <div className={`${t.cardBg} border rounded-xl p-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3`}>
+          <p className={`${t.body} text-sm`}>
             <span className="text-orange-500 font-semibold">{docCount}</span> of{" "}
             <span className="font-semibold">{freeLimit}</span> free documents used
             {docCount >= freeLimit && (
@@ -300,12 +306,12 @@ function DashboardContent() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h2
-            className="text-4xl text-white tracking-wide"
+            className={`text-4xl ${t.heading} tracking-wide`}
             style={{ fontFamily: "var(--font-bebas-neue)" }}
           >
             YOUR DOCUMENTS
           </h2>
-          <p className="text-zinc-500 mt-1 text-sm">
+          <p className="${t.muted} mt-1 text-sm">
             {quotes.length} document{quotes.length !== 1 ? "s" : ""}
           </p>
         </div>
@@ -321,9 +327,9 @@ function DashboardContent() {
       {loading ? (
         <p className="text-zinc-500 text-sm">Loading...</p>
       ) : quotes.length === 0 ? (
-        <div className="text-center py-24 bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl">
+        <div className={`text-center py-24 ${t.cardBg} border rounded-xl`}>
           <p
-            className="text-3xl text-zinc-500 mb-4 tracking-wide"
+            className={`text-3xl ${t.muted} mb-4 tracking-wide`}
             style={{ fontFamily: "var(--font-bebas-neue)" }}
           >
             NO DOCUMENTS YET
@@ -344,7 +350,7 @@ function DashboardContent() {
           {quotes.map((q) => (
             <div
               key={q.id}
-              className="flex items-center justify-between bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl px-6 py-4 hover:border-l-2 hover:border-l-orange-500 hover:-translate-y-0.5 transition-all group"
+              className={`flex items-center justify-between ${t.cardBg} border rounded-xl px-6 py-4 hover:border-l-2 hover:border-l-orange-500 hover:-translate-y-0.5 transition-all group`}
             >
               <Link
                 href={`/${DOC_PATH[q.doc_type] || "q"}/${q.id}`}
@@ -359,7 +365,7 @@ function DashboardContent() {
                   {(q.doc_type || "quote").charAt(0).toUpperCase() +
                     (q.doc_type || "quote").slice(1)}
                 </span>
-                <span className="text-white font-medium truncate">
+                <span className={`${t.heading} font-medium truncate`}>
                   {q.client_name}
                 </span>
                 <span className="text-zinc-500 text-sm hidden md:inline">
@@ -367,7 +373,7 @@ function DashboardContent() {
                 </span>
               </Link>
               <div className="flex items-center gap-4 ml-4 shrink-0">
-                <span className="text-white font-semibold">
+                <span className={`${t.heading} font-semibold`}>
                   &pound;{q.total?.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
                 <span className="text-zinc-500 text-sm hidden md:inline">
