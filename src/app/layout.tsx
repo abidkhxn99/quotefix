@@ -19,6 +19,13 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "QuoteFix",
   description: "Professional quotes, invoices and contracts for UK tradespeople",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({
