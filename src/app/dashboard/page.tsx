@@ -295,9 +295,10 @@ function DashboardContent() {
         </div>
         <Link
           href="/new"
-          className="bg-orange-500 text-white px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-orange-600 transition-colors"
+          className="bg-orange-500 text-white px-6 py-2.5 rounded-lg font-bold tracking-wider hover:bg-orange-600 transition-colors"
+          style={{ fontFamily: "var(--font-bebas-neue)", fontSize: "1rem" }}
         >
-          New Document
+          NEW DOCUMENT
         </Link>
       </div>
 
