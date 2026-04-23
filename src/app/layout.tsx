@@ -68,6 +68,9 @@ export const metadata: Metadata = {
       "Create professional quotes, invoices and contracts in 60 seconds. Built for tradespeople.",
     images: ["/icon-512.png"],
   },
+  verification: {
+    google: "ZkSvilk1nGVIntJAJhjNEckR2VdpiaFnJaQvD4v5H-M",
+  },
   robots: {
     index: true,
     follow: true,
