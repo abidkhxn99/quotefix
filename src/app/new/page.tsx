@@ -5,7 +5,13 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import QuoteForm from "@/components/QuoteForm";
 import QuotePreview from "@/components/QuotePreview";
-import { QuoteFormData, GeneratedQuote } from "@/types/quote";
+import { QuoteFormData, GeneratedQuote, DocType } from "@/types/quote";
+
+const DOC_PATH: Record<DocType, string> = {
+  quote: "q",
+  invoice: "i",
+  contract: "c",
+};
 
 export default function NewQuotePage() {
   const { isSignedIn, isLoaded } = useUser();
@@ -16,14 +22,29 @@ export default function NewQuotePage() {
   const [formData, setFormData] = useState<QuoteFormData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
       router.push("/sign-in");
+      return;
     }
+    if (!isLoaded || !isSignedIn) return;
+
+    // Check if user can create documents before showing the form
+    fetch("/api/subscription")
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.canCreate) {
+          router.replace("/upgrade");
+        } else {
+          setChecking(false);
+        }
+      })
+      .catch(() => setChecking(false));
   }, [isLoaded, isSignedIn, router]);
 
-  if (!isLoaded || !isSignedIn) return null;
+  if (!isLoaded || !isSignedIn || checking) return null;
 
   async function handleSubmit(data: QuoteFormData) {
     setLoading(true);
@@ -44,12 +65,20 @@ export default function NewQuotePage() {
           return;
         }
         throw new Error(
-          body?.message || body?.error || `Server error (${res.status}). Please try again.`
+          body?.message ||
+            body?.error ||
+            `Server error (${res.status}). Please try again.`
         );
       }
 
       const generated = await res.json();
       setQuote(generated);
+
+      // Update URL to the document's shareable path
+      if (generated.id) {
+        const prefix = DOC_PATH[data.docType] || "q";
+        window.history.replaceState(null, "", `/${prefix}/${generated.id}`);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -91,6 +120,7 @@ export default function NewQuotePage() {
               onClick={() => {
                 setQuote(null);
                 setFormData(null);
+                window.history.replaceState(null, "", "/new");
               }}
               className="text-sm text-orange-500 hover:text-orange-400 font-medium transition-colors"
             >

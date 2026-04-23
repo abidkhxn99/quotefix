@@ -211,7 +211,7 @@ function DashboardContent() {
   useEffect(() => {
     if (!isLoaded || !isSignedIn) return;
 
-    fetch("/api/quotes")
+    fetch("/api/documents")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setQuotes(data);
@@ -261,7 +261,7 @@ function DashboardContent() {
   return (
     <div className="max-w-6xl mx-auto px-6 py-10 w-full">
       {showFreeBanner && (
-        <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4 mb-6 flex items-center justify-between">
+        <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <p className="text-zinc-300 text-sm">
             <span className="text-orange-500 font-semibold">{docCount}</span> of{" "}
             <span className="font-semibold">{freeLimit}</span> free documents used
@@ -352,7 +352,7 @@ function DashboardContent() {
               </Link>
               <div className="flex items-center gap-4 ml-4 shrink-0">
                 <span className="text-white font-semibold">
-                  &pound;{q.total?.toFixed(2)}
+                  &pound;{q.total?.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
                 <span className="text-zinc-500 text-sm hidden md:inline">
                   {new Date(q.created_at).toLocaleDateString("en-GB")}

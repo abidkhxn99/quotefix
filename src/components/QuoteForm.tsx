@@ -241,7 +241,7 @@ export default function QuoteForm({ onSubmit, loading }: QuoteFormProps) {
       {/* Document Type Selector */}
       <div className={cardClass}>
         <h3 className={sectionTitle}>Document Type</h3>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {(Object.keys(DOC_TYPE_INFO) as DocType[]).map((type) => (
             <button
               key={type}
@@ -639,6 +639,7 @@ export default function QuoteForm({ onSubmit, loading }: QuoteFormProps) {
           customTerms={customTerms}
           onSelectedChange={setSelectedTerms}
           onCustomChange={setCustomTerms}
+          docType={docType}
         />
       </div>
 

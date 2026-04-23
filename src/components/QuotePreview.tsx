@@ -165,7 +165,7 @@ export default function QuotePreview({
               <p className="text-xs opacity-60">VAT No. {formData.vatNumber}</p>
             )}
           </div>
-          <div className="text-right text-sm opacity-80">
+          <div className="text-right text-sm opacity-80 whitespace-nowrap">
             <p>Date: {today}</p>
             {docType === "quote" && <p>Valid for 30 days</p>}
             {docType === "invoice" && formData.dueDate && (
@@ -257,10 +257,10 @@ export default function QuotePreview({
                 <td className="py-3 text-center text-zinc-900">
                   {item.quantity}
                 </td>
-                <td className="py-3 text-right text-zinc-900">
+                <td className="py-3 text-right text-zinc-900 pl-3 whitespace-nowrap">
                   &pound;{formatGBP(item.unitPrice)}
                 </td>
-                <td className="py-3 text-right font-medium text-zinc-900">
+                <td className="py-3 text-right font-medium text-zinc-900 pl-3 whitespace-nowrap">
                   &pound;{formatGBP(item.total)}
                 </td>
               </tr>

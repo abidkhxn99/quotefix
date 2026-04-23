@@ -239,8 +239,10 @@ async function generateContractBody(
 
   const prompt = `You are a professional UK contract writer for tradespeople. Generate a comprehensive, legally-sound contract body in plain English.
 
-CONTRACTOR: ${safeCompany} (${safeTradesman})
+CONTRACTOR: ${safeCompany} (${safeTradesman}), ${(formData.clientAddress ? "contractor address on file" : "contractor address not provided")}
 CLIENT: ${safeClient}, ${safeAddress}
+
+IMPORTANT: Do NOT use placeholder text like [Contractor's Address] or [Address] anywhere. If an address is not provided, simply omit it.
 JOB TYPE: ${jobType}
 PROJECT DATES: ${formData.projectStart} to ${formData.projectEnd}
 LABOUR: ${formData.labourDays} days at £${formData.dayRate}/day = £${labourTotal.toFixed(2)}

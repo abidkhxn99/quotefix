@@ -1,6 +1,9 @@
+import { DocType } from "@/types/quote";
+
 export interface TermCategory {
   name: string;
   terms: string[];
+  docTypes?: DocType[];
 }
 
 export const TERMS_LIBRARY: TermCategory[] = [
@@ -47,6 +50,7 @@ export const TERMS_LIBRARY: TermCategory[] = [
   },
   {
     name: "Quote Validity",
+    docTypes: ["quote"],
     terms: [
       "This quote is valid for 14 days from the date of issue",
       "This quote is valid for 30 days from the date of issue",
@@ -54,6 +58,31 @@ export const TERMS_LIBRARY: TermCategory[] = [
       "Prices subject to change if work does not commence within the validity period",
     ],
   },
+  {
+    name: "Invoice Terms",
+    docTypes: ["invoice"],
+    terms: [
+      "This invoice is due on the date specified above",
+      "Goods/services remain the property of the supplier until payment is received in full",
+      "A late payment fee may be applied to overdue invoices",
+    ],
+  },
+  {
+    name: "Contract Terms",
+    docTypes: ["contract"],
+    terms: [
+      "This contract is binding once signed by both parties",
+      "Any variations to this contract must be agreed in writing by both parties",
+      "This contract is governed by the laws of England and Wales",
+      "Either party may terminate with 7 days written notice",
+    ],
+  },
 ];
+
+export function getTermsForDocType(docType: DocType): TermCategory[] {
+  return TERMS_LIBRARY.filter(
+    (cat) => !cat.docTypes || cat.docTypes.includes(docType)
+  );
+}
 
 export const ALL_TERMS = TERMS_LIBRARY.flatMap((c) => c.terms);

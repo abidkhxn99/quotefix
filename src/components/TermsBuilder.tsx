@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { TERMS_LIBRARY } from "@/lib/terms-library";
+import { getTermsForDocType } from "@/lib/terms-library";
+import { DocType } from "@/types/quote";
 
 interface TermsBuilderProps {
   selectedTerms: string[];
   customTerms: string[];
   onSelectedChange: (terms: string[]) => void;
   onCustomChange: (terms: string[]) => void;
+  docType?: DocType;
 }
 
 export default function TermsBuilder({
@@ -15,7 +17,9 @@ export default function TermsBuilder({
   customTerms,
   onSelectedChange,
   onCustomChange,
+  docType,
 }: TermsBuilderProps) {
+  const categories = getTermsForDocType(docType || "quote");
   const [customInput, setCustomInput] = useState("");
 
   function toggleTerm(term: string) {
@@ -41,7 +45,7 @@ export default function TermsBuilder({
   return (
     <div className="space-y-5">
       {/* Pre-written terms by category */}
-      {TERMS_LIBRARY.map((category) => (
+      {categories.map((category) => (
         <div key={category.name}>
           <p className="text-sm font-semibold text-orange-400 mb-2">
             {category.name}
