@@ -463,6 +463,19 @@ export default function LandingPage() {
                 </li>
               ))}
             </ul>
+            <p className="text-zinc-500 text-xs text-center mb-6">
+              <span className="text-red-400">&hearts;</span>{" "}
+              5% of your subscription goes to{" "}
+              <a
+                href="https://www.crisis.org.uk"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-orange-400/80 hover:text-orange-300 underline"
+              >
+                Crisis UK
+              </a>{" "}
+              to help end homelessness
+            </p>
             <Link
               href="/sign-up"
               className="block w-full text-center bg-orange-500 text-white py-4 rounded-xl font-bold text-lg tracking-wider hover:bg-orange-600 hover:-translate-y-0.5 transition-all"
@@ -512,6 +525,18 @@ export default function LandingPage() {
               </p>
               <p className="text-zinc-500 text-sm">
                 Professional documents for UK tradespeople
+              </p>
+              <p className="text-zinc-600 text-xs mt-2">
+                <span className="text-red-400">&hearts;</span>{" "}
+                5% of every subscription donated to{" "}
+                <a
+                  href="https://www.crisis.org.uk"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-zinc-500 hover:text-zinc-300 underline"
+                >
+                  Crisis UK
+                </a>
               </p>
             </div>
             <div className="flex flex-col gap-2 text-sm">

@@ -136,6 +136,19 @@ export default function UpgradePage() {
                 {f}
               </li>
             ))}
+            <li className="flex items-start gap-3 text-sm text-zinc-400">
+              <span className="text-red-400 shrink-0 mt-0.5">&hearts;</span>
+              5% goes to{" "}
+              <a
+                href="https://www.crisis.org.uk"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-orange-400/80 hover:text-orange-300 underline"
+              >
+                Crisis UK
+              </a>
+              {" "}&mdash; helping end homelessness
+            </li>
           </ul>
 
           <button

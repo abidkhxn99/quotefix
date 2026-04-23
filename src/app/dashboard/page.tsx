@@ -257,9 +257,25 @@ function DashboardContent() {
   if (!isSignedIn) return null;
 
   const showFreeBanner = subStatus !== "active";
+  const showCharityBadge = subStatus === "active";
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10 w-full">
+      {showCharityBadge && (
+        <p className="text-zinc-600 text-xs mb-4">
+          <span className="text-red-400">&hearts;</span>{" "}
+          Thanks to your subscription, QuoteFix donates to{" "}
+          <a
+            href="https://www.crisis.org.uk"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-zinc-500 hover:text-zinc-300 underline"
+          >
+            Crisis UK
+          </a>{" "}
+          every month.
+        </p>
+      )}
       {showFreeBanner && (
         <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <p className="text-zinc-300 text-sm">
