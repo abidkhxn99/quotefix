@@ -7,12 +7,12 @@ import { validateEnv } from "@/lib/env";
 import { getSubscriptionInfo, incrementDocumentCount } from "@/lib/subscription";
 import { LineItem } from "@/types/quote";
 
-validateEnv();
-
 const anthropic = new Anthropic();
 
 export async function POST(request: Request) {
   try {
+    validateEnv();
+
     // 1. Auth check
     const { userId } = await auth();
     if (!userId) {

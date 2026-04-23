@@ -4,12 +4,11 @@ import { improveDescriptionSchema } from "@/lib/validation";
 import { checkRateLimit, RATE_LIMITS, rateLimitResponse } from "@/lib/rate-limit";
 import { validateEnv } from "@/lib/env";
 
-validateEnv();
-
 const anthropic = new Anthropic();
 
 export async function POST(request: Request) {
   try {
+    validateEnv();
     const { userId } = await auth();
     if (!userId) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });

