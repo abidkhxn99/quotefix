@@ -382,13 +382,24 @@ export default function QuotePreview({
       )}
 
       {/* Actions */}
-      <div className="p-8 flex gap-3 print:hidden">
+      <div className="p-8 flex flex-wrap gap-3 print:hidden">
         <button
-          onClick={() => window.print()}
-          className="text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors"
+          onClick={() => {
+            // On iOS/mobile, window.print() often fails silently.
+            // Use print for desktop, share API for mobile if available.
+            if (navigator.share && /iPhone|iPad|Android/i.test(navigator.userAgent) && shareUrl) {
+              navigator.share({ title: `${docLabel} ${quoteNumber || ""}`.trim(), url: shareUrl }).catch(() => {});
+            } else {
+              window.print();
+            }
+          }}
+          className="text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
           style={{ backgroundColor: colour }}
         >
-          Print / Save PDF
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Save as PDF
         </button>
         {shareUrl && (
           <button
