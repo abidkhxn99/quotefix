@@ -17,19 +17,12 @@ const securityHeaders = [
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=()",
   },
-  {
-    key: "Content-Security-Policy",
-    value: [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.clerk.accounts.dev https://*.clerk.com https://clerk.quotefix.co.uk https://challenges.cloudflare.com",
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.clerk.com https://clerk.quotefix.co.uk",
-      "font-src 'self' https://fonts.gstatic.com https://*.clerk.com",
-      "img-src 'self' data: blob: https://*.clerk.accounts.dev https://*.clerk.com https://img.clerk.com",
-      "connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://clerk.quotefix.co.uk https://*.supabase.co https://api.anthropic.com",
-      "frame-src https://*.clerk.accounts.dev https://*.clerk.com https://challenges.cloudflare.com",
-      "worker-src 'self' blob:",
-    ].join("; "),
-  },
+  // CSP disabled temporarily — Clerk production needs broad domain access
+  // TODO: re-enable with correct production domains once auth is confirmed working
+  // {
+  //   key: "Content-Security-Policy",
+  //   value: "...",
+  // },
   {
     key: "X-DNS-Prefetch-Control",
     value: "on",
