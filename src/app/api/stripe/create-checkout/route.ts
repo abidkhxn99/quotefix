@@ -3,7 +3,7 @@ import { stripe } from "@/lib/stripe";
 import { getSubscriptionInfo } from "@/lib/subscription";
 import { supabase } from "@/lib/supabase";
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     const { userId } = await auth();
     if (!userId) {
@@ -15,6 +15,8 @@ export async function POST() {
     if (info.status === "active") {
       return Response.json({ error: "Already subscribed" }, { status: 400 });
     }
+
+    const { plan } = await request.json().catch(() => ({ plan: "monthly" }));
 
     // Reuse existing Stripe customer or create new
     let customerId = info.stripeCustomerId;
@@ -32,7 +34,11 @@ export async function POST() {
         );
     }
 
-    const priceId = process.env.STRIPE_PRICE_ID;
+    const priceId =
+      plan === "yearly"
+        ? process.env.STRIPE_PRICE_ID_YEARLY
+        : process.env.STRIPE_PRICE_ID_MONTHLY;
+
     if (!priceId) {
       return Response.json({ error: "Pricing not configured" }, { status: 500 });
     }

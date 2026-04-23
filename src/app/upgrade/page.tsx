@@ -11,6 +11,7 @@ export default function UpgradePage() {
   const { isSignedIn, isLoaded } = useUser();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [plan, setPlan] = useState<"monthly" | "yearly">("monthly");
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -23,6 +24,8 @@ export default function UpgradePage() {
     try {
       const res = await fetch("/api/stripe/create-checkout", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan }),
       });
       const data = await res.json();
       if (data.url) {
@@ -50,28 +53,57 @@ export default function UpgradePage() {
           <br />
           <span className="text-orange-500">INVOICES & CONTRACTS</span>
         </h1>
-        <p className="text-zinc-400 mb-10">
+        <p className="text-zinc-400 mb-8">
           You&apos;ve used your 3 free documents. Upgrade to QuoteFix Pro for
           unlimited access.
         </p>
 
+        {/* Plan toggle */}
+        <div className="flex items-center justify-center gap-1 bg-[#1a1a1a] rounded-xl p-1 mb-8 max-w-xs mx-auto">
+          <button
+            onClick={() => setPlan("monthly")}
+            className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-colors ${
+              plan === "monthly"
+                ? "bg-orange-500 text-white"
+                : "text-zinc-400 hover:text-white"
+            }`}
+          >
+            Monthly
+          </button>
+          <button
+            onClick={() => setPlan("yearly")}
+            className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-colors ${
+              plan === "yearly"
+                ? "bg-orange-500 text-white"
+                : "text-zinc-400 hover:text-white"
+            }`}
+          >
+            Yearly
+            <span className="bg-green-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full ml-2">2 months free</span>
+          </button>
+        </div>
+
         <div className="bg-[#1a1a1a] border-2 border-orange-500 rounded-2xl p-8">
           <div className="text-center mb-8">
             <p className="text-zinc-500 text-sm line-through mb-1">
-              &pound;25/month
+              {plan === "monthly" ? "\u00A325/month" : "\u00A3300/year"}
             </p>
             <div className="flex items-center justify-center gap-2">
               <span className="text-6xl text-white" style={heading}>
-                &pound;19
+                {plan === "monthly" ? "\u00A319" : "\u00A3190"}
               </span>
-              <span className="text-zinc-400 text-lg">/month</span>
+              <span className="text-zinc-400 text-lg">
+                /{plan === "monthly" ? "month" : "year"}
+              </span>
               <span className="bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-full uppercase">
                 Sale
               </span>
             </div>
-            <p className="text-zinc-500 text-sm mt-2">
-              or &pound;190/year — save 2 months
-            </p>
+            {plan === "yearly" && (
+              <p className="text-green-400 text-sm mt-2 font-medium">
+                That&apos;s just &pound;15.83/month
+              </p>
+            )}
           </div>
 
           <ul className="space-y-3 mb-8 text-left">
@@ -112,7 +144,11 @@ export default function UpgradePage() {
             className="w-full bg-orange-500 text-white py-4 rounded-xl font-bold text-lg tracking-wider hover:bg-orange-600 hover:-translate-y-0.5 transition-all disabled:opacity-50"
             style={heading}
           >
-            {loading ? "REDIRECTING..." : "SUBSCRIBE NOW — \u00A319/MONTH"}
+            {loading
+              ? "REDIRECTING..."
+              : plan === "monthly"
+                ? "SUBSCRIBE NOW \u2014 \u00A319/MONTH"
+                : "SUBSCRIBE NOW \u2014 \u00A3190/YEAR"}
           </button>
           <p className="text-zinc-600 text-xs text-center mt-4">
             Secure payment via Stripe. Cancel anytime.
