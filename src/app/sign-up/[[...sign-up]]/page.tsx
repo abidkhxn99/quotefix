@@ -12,7 +12,7 @@ export default function SignUpPage() {
   return (
     <div className={`flex-1 flex flex-col items-center justify-center py-12 ${t.pageBg} transition-colors`}>
       <SignUp
-        fallbackRedirectUrl="/dashboard"
+        fallbackRedirectUrl="/welcome"
         appearance={isDark ? { baseTheme: dark } : undefined}
       />
       <p className={`${t.mutedMore} text-xs mt-6 max-w-xs text-center`}>

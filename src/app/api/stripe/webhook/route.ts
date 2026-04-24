@@ -1,5 +1,6 @@
 import { stripe } from "@/lib/stripe";
 import { supabase } from "@/lib/supabase";
+import { updateLoopsContact, sendLoopsEvent } from "@/lib/loops";
 import Stripe from "stripe";
 
 export async function POST(request: Request) {
@@ -41,6 +42,19 @@ export async function POST(request: Request) {
             },
             { onConflict: "user_id" }
           );
+
+        // Update Loops contact with Pro status
+        const customerEmail = session.customer_details?.email;
+        if (customerEmail) {
+          await updateLoopsContact(customerEmail, {
+            plan: "pro",
+            subscribedAt: new Date().toISOString(),
+            stripeCustomerId: session.customer as string,
+          });
+          await sendLoopsEvent(customerEmail, "user_subscribed", {
+            plan: "pro",
+          });
+        }
         break;
       }
 
