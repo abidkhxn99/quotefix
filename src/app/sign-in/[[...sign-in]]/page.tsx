@@ -12,7 +12,7 @@ export default function SignInPage() {
   return (
     <div className={`flex-1 flex items-center justify-center py-12 ${t.pageBg} transition-colors`}>
       <SignIn
-        fallbackRedirectUrl="/dashboard"
+        fallbackRedirectUrl="/settings"
         appearance={isDark ? { baseTheme: dark } : undefined}
       />
     </div>

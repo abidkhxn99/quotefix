@@ -278,10 +278,10 @@ export default function QuoteForm({ onSubmit, loading, initialData, editMode }: 
                   : `${dark?"border-[#333] bg-[#222] hover:border-[#444]":"border-zinc-200 bg-zinc-50 hover:border-zinc-300"}`
               }`}
             >
-              <p className="font-semibold text-sm text-white">
+              <p className={`font-semibold text-sm ${tc.heading}`}>
                 {DOC_TYPE_INFO[type].label}
               </p>
-              <p className="text-xs text-zinc-400 mt-0.5">
+              <p className={`text-xs ${tc.muted} mt-0.5`}>
                 {DOC_TYPE_INFO[type].desc}
               </p>
             </button>

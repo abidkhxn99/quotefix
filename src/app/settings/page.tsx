@@ -28,6 +28,7 @@ interface Settings {
   selectedTerms: string[];
   customTerms: string[];
   paymentDetails: PaymentDetails;
+  marketingConsent: boolean;
 }
 
 const PAYMENT_OPTIONS = [
@@ -63,6 +64,7 @@ export default function SettingsPage() {
     selectedTerms: [],
     customTerms: [],
     paymentDetails: DEFAULT_PAYMENT_DETAILS,
+    marketingConsent: false,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -379,6 +381,23 @@ export default function SettingsPage() {
             onSelectedChange={(t) => update("selectedTerms", t)}
             onCustomChange={(t) => update("customTerms", t)}
           />
+        </div>
+
+        {/* Marketing */}
+        <div className={cardClass}>
+          <h3 className={sectionTitle}>Email Preferences</h3>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={settings.marketingConsent}
+              onChange={(e) => update("marketingConsent", e.target.checked)}
+              className={`h-5 w-5 mt-0.5 rounded ${dark ? "border-[#333] bg-[#222]" : "border-zinc-300 bg-white"} text-orange-500 focus:ring-orange-500 cursor-pointer shrink-0`}
+            />
+            <span className={`text-sm ${tc.body}`}>
+              I&apos;d like to receive tips, updates and offers from QuoteFix by
+              email. You can unsubscribe anytime.
+            </span>
+          </label>
         </div>
 
         {/* Subscription */}

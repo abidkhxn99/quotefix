@@ -21,6 +21,7 @@ const settingsSchema = z.object({
   selectedTerms: z.array(z.string().max(500)).max(50).default([]),
   customTerms: z.array(z.string().max(500)).max(20).default([]),
   paymentDetails: z.any().default({}),
+  marketingConsent: z.boolean().default(false),
 });
 
 export async function GET() {
@@ -59,6 +60,7 @@ export async function GET() {
         selectedTerms: [],
         customTerms: [],
         paymentDetails: {},
+        marketingConsent: false,
       });
     }
 
@@ -81,6 +83,7 @@ export async function GET() {
       selectedTerms: data.selected_terms || [],
       customTerms: data.custom_terms || [],
       paymentDetails: data.payment_details || {},
+      marketingConsent: data.marketing_consent ?? false,
     });
   } catch (err) {
     console.error("Get settings error:", err);
@@ -135,6 +138,8 @@ export async function POST(request: Request) {
         selected_terms: d.selectedTerms,
         custom_terms: d.customTerms,
         payment_details: d.paymentDetails || {},
+        marketing_consent: d.marketingConsent,
+        marketing_consent_given_at: d.marketingConsent ? new Date().toISOString() : null,
         updated_at: new Date().toISOString(),
       },
       { onConflict: "user_id" }

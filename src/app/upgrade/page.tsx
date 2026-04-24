@@ -70,7 +70,7 @@ export default function UpgradePage() {
             className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-colors ${
               plan === "monthly"
                 ? "bg-orange-500 text-white"
-                : "text-zinc-400 hover:text-white"
+                : `${t.muted} hover:${dark?"text-white":"text-zinc-900"}`
             }`}
           >
             Monthly
@@ -80,7 +80,7 @@ export default function UpgradePage() {
             className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-colors ${
               plan === "yearly"
                 ? "bg-orange-500 text-white"
-                : "text-zinc-400 hover:text-white"
+                : `${t.muted} hover:${dark?"text-white":"text-zinc-900"}`
             }`}
           >
             Yearly
@@ -94,10 +94,10 @@ export default function UpgradePage() {
               {plan === "monthly" ? "\u00A325/month" : "\u00A3300/year"}
             </p>
             <div className="flex items-center justify-center gap-2">
-              <span className="text-6xl text-white" style={heading}>
+              <span className={`text-6xl ${t.heading}`} style={heading}>
                 {plan === "monthly" ? "\u00A319" : "\u00A3190"}
               </span>
-              <span className="text-zinc-400 text-lg">
+              <span className={`${t.muted} text-lg`}>
                 /{plan === "monthly" ? "month" : "year"}
               </span>
               <span className="bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-full uppercase">
@@ -123,7 +123,7 @@ export default function UpgradePage() {
             ].map((f) => (
               <li
                 key={f}
-                className="flex items-start gap-3 text-sm text-zinc-300"
+                className={`flex items-start gap-3 text-sm ${t.body}`}
               >
                 <svg
                   className="w-5 h-5 text-orange-500 shrink-0 mt-0.5"
