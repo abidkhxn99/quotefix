@@ -303,7 +303,7 @@ function DashboardContent() {
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h2
             className={`text-4xl ${t.heading} tracking-wide`}
@@ -350,29 +350,40 @@ function DashboardContent() {
           {quotes.map((q) => (
             <div
               key={q.id}
-              className={`flex items-center justify-between ${t.cardBg} border rounded-xl px-6 py-4 hover:border-l-2 hover:border-l-orange-500 hover:-translate-y-0.5 transition-all group`}
+              className={`${t.cardBg} border rounded-xl px-4 sm:px-6 py-4 hover:border-l-2 hover:border-l-orange-500 hover:-translate-y-0.5 transition-all group`}
             >
               <Link
                 href={`/${DOC_PATH[q.doc_type] || "q"}/${q.id}`}
-                className="flex items-center gap-5 flex-1 min-w-0"
+                className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-5 flex-1 min-w-0"
               >
-                <span className="text-orange-500 font-semibold text-sm min-w-[140px]">
-                  {q.quote_number}
-                </span>
-                <span
-                  className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${TYPE_BADGES[q.doc_type] || TYPE_BADGES.quote}`}
-                >
-                  {(q.doc_type || "quote").charAt(0).toUpperCase() +
-                    (q.doc_type || "quote").slice(1)}
-                </span>
-                <span className={`${t.heading} font-medium truncate`}>
+                <div className="flex items-center justify-between sm:justify-start gap-3 sm:gap-5">
+                  <span className="text-orange-500 font-semibold text-sm">
+                    {q.quote_number}
+                  </span>
+                  <span
+                    className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${TYPE_BADGES[q.doc_type] || TYPE_BADGES.quote}`}
+                  >
+                    {(q.doc_type || "quote").charAt(0).toUpperCase() +
+                      (q.doc_type || "quote").slice(1)}
+                  </span>
+                  <span className={`${t.heading} font-semibold sm:hidden ml-auto`}>
+                    &pound;{q.total?.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                  <div className="sm:hidden">
+                    <DocMenu doc={q} onDelete={handleDelete} />
+                  </div>
+                </div>
+                <span className={`${t.heading} font-medium truncate hidden sm:inline`}>
                   {q.client_name}
+                </span>
+                <span className={`${t.muted} text-sm truncate sm:hidden`}>
+                  {q.client_name} {q.job_type ? `· ${q.job_type}` : ""}
                 </span>
                 <span className="text-zinc-500 text-sm hidden md:inline">
                   {q.job_type}
                 </span>
               </Link>
-              <div className="flex items-center gap-4 ml-4 shrink-0">
+              <div className="hidden sm:flex items-center gap-4 ml-4 shrink-0">
                 <span className={`${t.heading} font-semibold`}>
                   &pound;{q.total?.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
