@@ -159,6 +159,7 @@ export async function POST(request: Request) {
         terms: userTerms,
         line_items: lineItems,
         estimated_timeline: "",
+        payment_details: formData.paymentDetails || {},
         due_date: formData.dueDate || null,
         project_start: formData.projectStart || null,
         project_end: formData.projectEnd || null,

@@ -4,8 +4,10 @@ import { useState, useEffect, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import TermsBuilder from "@/components/TermsBuilder";
+import PaymentDetailsEditor from "@/components/PaymentDetailsEditor";
 import { useTheme } from "@/components/ThemeProvider";
 import { getThemeClasses } from "@/lib/theme-classes";
+import { PaymentDetails, DEFAULT_PAYMENT_DETAILS } from "@/types/payment";
 
 interface Settings {
   companyName: string;
@@ -25,6 +27,7 @@ interface Settings {
   defaultPaymentTerms: string;
   selectedTerms: string[];
   customTerms: string[];
+  paymentDetails: PaymentDetails;
 }
 
 const PAYMENT_OPTIONS = [
@@ -59,6 +62,7 @@ export default function SettingsPage() {
     defaultPaymentTerms: "",
     selectedTerms: [],
     customTerms: [],
+    paymentDetails: DEFAULT_PAYMENT_DETAILS,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -74,7 +78,10 @@ export default function SettingsPage() {
     fetch("/api/settings")
       .then((r) => r.json())
       .then((data) => {
-        if (!data.error) setSettings(data);
+        if (!data.error) setSettings({
+          ...data,
+          paymentDetails: { ...DEFAULT_PAYMENT_DETAILS, ...data.paymentDetails },
+        });
       })
       .finally(() => setLoading(false));
   }, [isLoaded, isSignedIn, router]);
@@ -346,6 +353,18 @@ export default function SettingsPage() {
               </div>
             </label>
           </div>
+        </div>
+
+        {/* Payment Details */}
+        <div className={cardClass}>
+          <h3 className={sectionTitle}>Payment Details</h3>
+          <p className={`${tc.muted} text-sm mb-4`}>
+            Set your payment methods. These will appear on your documents.
+          </p>
+          <PaymentDetailsEditor
+            value={settings.paymentDetails}
+            onChange={(v) => update("paymentDetails", v)}
+          />
         </div>
 
         {/* Default Terms & Conditions */}

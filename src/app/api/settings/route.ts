@@ -20,6 +20,7 @@ const settingsSchema = z.object({
   defaultPaymentTerms: z.string().max(200).default(""),
   selectedTerms: z.array(z.string().max(500)).max(50).default([]),
   customTerms: z.array(z.string().max(500)).max(20).default([]),
+  paymentDetails: z.any().default({}),
 });
 
 export async function GET() {
@@ -57,6 +58,7 @@ export async function GET() {
         defaultPaymentTerms: "",
         selectedTerms: [],
         customTerms: [],
+        paymentDetails: {},
       });
     }
 
@@ -78,6 +80,7 @@ export async function GET() {
       defaultPaymentTerms: data.default_payment_terms || "",
       selectedTerms: data.selected_terms || [],
       customTerms: data.custom_terms || [],
+      paymentDetails: data.payment_details || {},
     });
   } catch (err) {
     console.error("Get settings error:", err);
@@ -131,6 +134,7 @@ export async function POST(request: Request) {
         default_payment_terms: d.defaultPaymentTerms,
         selected_terms: d.selectedTerms,
         custom_terms: d.customTerms,
+        payment_details: d.paymentDetails || {},
         updated_at: new Date().toISOString(),
       },
       { onConflict: "user_id" }

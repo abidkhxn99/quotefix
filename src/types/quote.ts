@@ -27,6 +27,7 @@ export interface QuoteFormData {
   vatRegistered: boolean;
   selectedTerms: string[];
   customTerms: string[];
+  paymentDetails: import("@/types/payment").PaymentDetails;
   dueDate: string;
   projectStart: string;
   projectEnd: string;
@@ -79,6 +80,7 @@ export interface SavedQuote {
   terms: string[];
   line_items: LineItem[];
   estimated_timeline: string;
+  payment_details: import("@/types/payment").PaymentDetails;
   due_date: string;
   project_start: string;
   project_end: string;

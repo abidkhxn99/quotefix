@@ -43,6 +43,7 @@ export const quoteFormSchema = z.object({
   vatRegistered: z.boolean().default(false),
   selectedTerms: z.array(z.string().max(500)).max(50).default([]),
   customTerms: z.array(z.string().max(500)).max(20).default([]),
+  paymentDetails: z.any().default({}),
   dueDate: z.string().max(20).default(""),
   projectStart: z.string().max(20).default(""),
   projectEnd: z.string().max(20).default(""),

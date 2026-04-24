@@ -5,8 +5,10 @@ import { useRef, useState, useEffect } from "react";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { QuoteFormData, DocType } from "@/types/quote";
 import TermsBuilder from "@/components/TermsBuilder";
+import PaymentDetailsEditor from "@/components/PaymentDetailsEditor";
 import { useTheme } from "@/components/ThemeProvider";
 import { getThemeClasses } from "@/lib/theme-classes";
+import { PaymentDetails, DEFAULT_PAYMENT_DETAILS } from "@/types/payment";
 
 const JOB_TYPES = [
   "Building / Construction",
@@ -57,6 +59,7 @@ export default function QuoteForm({ onSubmit, loading }: QuoteFormProps) {
   const [prefsLoaded, setPrefsLoaded] = useState(false);
   const [docPrefix, setDocPrefix] = useState("QF");
   const [docCounter, setDocCounter] = useState(1);
+  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails>(DEFAULT_PAYMENT_DETAILS);
 
   const {
     register,
@@ -119,6 +122,9 @@ export default function QuoteForm({ onSubmit, loading }: QuoteFormProps) {
         // Terms
         if (data.selectedTerms?.length) setSelectedTerms(data.selectedTerms);
         if (data.customTerms?.length) setCustomTerms(data.customTerms);
+
+        // Payment details
+        if (data.paymentDetails) setPaymentDetails({ ...DEFAULT_PAYMENT_DETAILS, ...data.paymentDetails });
       })
       .catch(() => {})
       .finally(() => setPrefsLoaded(true));
@@ -208,9 +214,10 @@ export default function QuoteForm({ onSubmit, loading }: QuoteFormProps) {
   }
 
   function handleFormSubmit(data: QuoteFormData) {
-    // Inject terms into form data
+    // Inject terms and payment details into form data
     data.selectedTerms = selectedTerms;
     data.customTerms = customTerms;
+    data.paymentDetails = paymentDetails;
 
     // Save preferences in background
     fetch("/api/preferences", {
@@ -644,6 +651,16 @@ export default function QuoteForm({ onSubmit, loading }: QuoteFormProps) {
           onSelectedChange={setSelectedTerms}
           onCustomChange={setCustomTerms}
           docType={docType}
+        />
+      </div>
+
+      {/* Payment Details */}
+      <div className={cardClass}>
+        <h3 className={sectionTitle}>Payment Details</h3>
+        <PaymentDetailsEditor
+          value={paymentDetails}
+          onChange={setPaymentDetails}
+          compact
         />
       </div>
 

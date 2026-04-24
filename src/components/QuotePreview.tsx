@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PaymentDetails, DEFAULT_PAYMENT_DETAILS } from "@/types/payment";
 import {
   GeneratedQuote,
   QuoteFormData,
@@ -58,6 +59,7 @@ export function SavedQuotePreview({ quote }: SavedQuotePreviewProps) {
     vatRegistered: quote.vat_registered ?? quote.vat > 0,
     selectedTerms: [],
     customTerms: [],
+    paymentDetails: { ...DEFAULT_PAYMENT_DETAILS, ...(quote.payment_details || {}) },
     dueDate: quote.due_date || "",
     projectStart: quote.project_start || "",
     projectEnd: quote.project_end || "",
@@ -80,6 +82,77 @@ export function SavedQuotePreview({ quote }: SavedQuotePreviewProps) {
       quoteId={quote.id}
       quoteNumber={quote.quote_number}
     />
+  );
+}
+
+function PaymentDetailsBlock({ details, colour }: { details?: PaymentDetails; colour: string }) {
+  if (!details) return null;
+  const { bankTransfer, cash, card, paymentLink, cheque, paymentDueNote } = details;
+  const hasAny = bankTransfer?.enabled || cash?.enabled || card?.enabled || paymentLink?.enabled || cheque?.enabled;
+  if (!hasAny && !paymentDueNote) return null;
+
+  const otherMethods: string[] = [];
+  if (cash?.enabled) otherMethods.push(cash.note || "Cash");
+  if (card?.enabled) otherMethods.push(card.note || "Card");
+  if (cheque?.enabled) otherMethods.push(cheque.payableTo ? `Cheque (payable to ${cheque.payableTo})` : "Cheque");
+
+  return (
+    <div className="p-8 border-b border-zinc-200">
+      <h3 className="text-sm font-semibold uppercase tracking-wider mb-4" style={{ color: colour }}>
+        Payment Details
+      </h3>
+
+      {paymentDueNote && (
+        <p className="text-sm text-zinc-900 font-medium mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+          {paymentDueNote}
+        </p>
+      )}
+
+      {bankTransfer?.enabled && bankTransfer.accountName && (
+        <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4 mb-4">
+          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Bank Transfer</p>
+          <div className="grid grid-cols-2 gap-y-1.5 text-sm">
+            <span className="text-zinc-500">Account Name</span>
+            <span className="text-zinc-900 font-medium">{bankTransfer.accountName}</span>
+            <span className="text-zinc-500">Sort Code</span>
+            <span className="text-zinc-900 font-medium">{bankTransfer.sortCode}</span>
+            <span className="text-zinc-500">Account Number</span>
+            <span className="text-zinc-900 font-medium">{bankTransfer.accountNumber}</span>
+            {bankTransfer.bankName && (
+              <>
+                <span className="text-zinc-500">Bank</span>
+                <span className="text-zinc-900 font-medium">{bankTransfer.bankName}</span>
+              </>
+            )}
+          </div>
+          {bankTransfer.referenceNote && (
+            <p className="text-xs text-zinc-500 mt-2 italic">{bankTransfer.referenceNote}</p>
+          )}
+        </div>
+      )}
+
+      {otherMethods.length > 0 && (
+        <p className="text-sm text-zinc-700 mb-3">
+          <span className="text-zinc-500">We also accept:</span>{" "}
+          {otherMethods.join(" · ")}
+        </p>
+      )}
+
+      {paymentLink?.enabled && paymentLink.url && (
+        <p className="text-sm">
+          <span className="text-zinc-500">Pay online:</span>{" "}
+          <a
+            href={paymentLink.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium underline"
+            style={{ color: colour }}
+          >
+            {paymentLink.label || "Pay online"} &rarr;
+          </a>
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -321,6 +394,9 @@ export default function QuotePreview({
           })}
         </div>
       )}
+
+      {/* Payment Details */}
+      <PaymentDetailsBlock details={formData.paymentDetails} colour={colour} />
 
       {/* Terms — for quotes and invoices only (contracts have terms in the body) */}
       {docType !== "contract" && quote.terms && quote.terms.length > 0 && (
