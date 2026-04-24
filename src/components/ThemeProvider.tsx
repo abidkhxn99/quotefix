@@ -18,7 +18,8 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setDark(localStorage.getItem("qf-theme") === "dark");
+    const isDark = localStorage.getItem("qf-theme") === "dark";
+    setDark(isDark);
     setMounted(true);
   }, []);
 
@@ -26,11 +27,20 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
     setDark((prev) => {
       const next = !prev;
       localStorage.setItem("qf-theme", next ? "dark" : "light");
+      document.body.style.background = next ? "#0f0f0f" : "#ffffff";
+      document.body.style.color = next ? "#e5e5e5" : "#171717";
       return next;
     });
   }, []);
 
-  // Prevent flash of wrong theme
+  // Apply theme to body on mount
+  useEffect(() => {
+    if (mounted) {
+      document.body.style.background = dark ? "#0f0f0f" : "#ffffff";
+      document.body.style.color = dark ? "#e5e5e5" : "#171717";
+    }
+  }, [dark, mounted]);
+
   if (!mounted) {
     return <div className="min-h-screen" />;
   }
