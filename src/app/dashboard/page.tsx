@@ -32,9 +32,11 @@ const TYPE_BADGES: Record<string, string> = {
 function DocMenu({
   doc,
   onDelete,
+  onDuplicate,
 }: {
   doc: QuoteSummary;
   onDelete: (id: string) => void;
+  onDuplicate: (id: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
@@ -108,6 +110,34 @@ function DocMenu({
               />
             </svg>
             Open
+          </button>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setOpen(false);
+              router.push(`/edit/${doc.id}`);
+            }}
+            className={`w-full text-left px-4 py-2.5 text-sm ${t.heading} ${dark?"hover:bg-[#2a2a2a]":"hover:bg-zinc-50"} flex items-center gap-3 transition-colors`}
+          >
+            <svg className="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Edit
+          </button>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setOpen(false);
+              onDuplicate(doc.id);
+            }}
+            className={`w-full text-left px-4 py-2.5 text-sm ${t.heading} ${dark?"hover:bg-[#2a2a2a]":"hover:bg-zinc-50"} flex items-center gap-3 transition-colors`}
+          >
+            <svg className="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            Duplicate
           </button>
           <button
             onClick={(e) => {
@@ -252,6 +282,24 @@ function DashboardContent() {
     }
   }
 
+  async function handleDuplicate(id: string) {
+    const res = await fetch("/api/documents/duplicate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    const data = await res.json();
+    if (data.error === "upgrade_required") {
+      dashRouter.push("/upgrade");
+      return;
+    }
+    if (data.id) {
+      setToast("Document duplicated — now editing copy");
+      setTimeout(() => setToast(""), 3000);
+      dashRouter.push(`/edit/${data.id}`);
+    }
+  }
+
   if (!isLoaded) {
     return (
       <div className="max-w-6xl mx-auto px-6 py-10">
@@ -370,7 +418,7 @@ function DashboardContent() {
                     &pound;{q.total?.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                   <div className="sm:hidden">
-                    <DocMenu doc={q} onDelete={handleDelete} />
+                    <DocMenu doc={q} onDelete={handleDelete} onDuplicate={handleDuplicate} />
                   </div>
                 </div>
                 <span className={`${t.heading} font-medium truncate hidden sm:inline`}>
@@ -390,7 +438,7 @@ function DashboardContent() {
                 <span className="text-zinc-500 text-sm hidden md:inline">
                   {new Date(q.created_at).toLocaleDateString("en-GB")}
                 </span>
-                <DocMenu doc={q} onDelete={handleDelete} />
+                <DocMenu doc={q} onDelete={handleDelete} onDuplicate={handleDuplicate} />
               </div>
             </div>
           ))}

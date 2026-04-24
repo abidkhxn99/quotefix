@@ -46,9 +46,11 @@ function generateDocNumber(prefix: string, counter: number): string {
 interface QuoteFormProps {
   onSubmit: (data: QuoteFormData) => void;
   loading: boolean;
+  initialData?: Partial<QuoteFormData>;
+  editMode?: boolean;
 }
 
-export default function QuoteForm({ onSubmit, loading }: QuoteFormProps) {
+export default function QuoteForm({ onSubmit, loading, initialData, editMode }: QuoteFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [logoPreview, setLogoPreview] = useState<string>("");
   const [cleaningUp, setCleaningUp] = useState(false);
@@ -89,41 +91,52 @@ export default function QuoteForm({ onSubmit, loading }: QuoteFormProps) {
     },
   });
 
-  // Load settings and pre-populate form
+  // Load settings or initial data
   useEffect(() => {
+    if (editMode && initialData) {
+      // Edit mode: populate from existing document
+      Object.entries(initialData).forEach(([key, val]) => {
+        if (val !== undefined && key !== "selectedTerms" && key !== "customTerms" && key !== "paymentDetails") {
+          setValue(key as keyof QuoteFormData, val as string | number | boolean);
+        }
+      });
+      if (initialData.logoDataUrl) setLogoPreview(initialData.logoDataUrl);
+      if (initialData.selectedTerms?.length) setSelectedTerms(initialData.selectedTerms);
+      if (initialData.customTerms?.length) setCustomTerms(initialData.customTerms);
+      if (initialData.paymentDetails) setPaymentDetails({ ...DEFAULT_PAYMENT_DETAILS, ...initialData.paymentDetails });
+      if (initialData.docNumber) {
+        setDocPrefix(initialData.docNumber.split("-")[0] || "QF");
+      }
+      setPrefsLoaded(true);
+      return;
+    }
+
+    // New doc: load from preferences
     fetch("/api/preferences")
       .then((res) => res.json())
       .then((data) => {
         if (data.error) return;
 
-        // Business profile
         if (data.companyName) setValue("companyName", data.companyName);
         if (data.tradesmanName) setValue("tradesmanName", data.tradesmanName);
         if (data.companyNumber) setValue("companyNumber", data.companyNumber);
         if (data.vatNumber) setValue("vatNumber", data.vatNumber);
 
-        // Branding
         if (data.logoDataUrl) {
           setValue("logoDataUrl", data.logoDataUrl);
           setLogoPreview(data.logoDataUrl);
         }
         if (data.brandColour) setValue("brandColour", data.brandColour);
-
-        // Defaults
         if (data.vatRegistered) setValue("vatRegistered", true);
 
-        // Document number
         const prefix = data.docPrefix || "QF";
         const counter = data.docCounter || 1;
         setDocPrefix(prefix);
         setDocCounter(counter);
         setValue("docNumber", generateDocNumber(prefix, counter));
 
-        // Terms
         if (data.selectedTerms?.length) setSelectedTerms(data.selectedTerms);
         if (data.customTerms?.length) setCustomTerms(data.customTerms);
-
-        // Payment details
         if (data.paymentDetails) setPaymentDetails({ ...DEFAULT_PAYMENT_DETAILS, ...data.paymentDetails });
       })
       .catch(() => {})
@@ -238,8 +251,9 @@ export default function QuoteForm({ onSubmit, loading }: QuoteFormProps) {
   const cardClass = `${tc.cardAccent} rounded-xl p-6`;
   const sectionTitle = `text-lg font-semibold ${tc.heading} mb-4 tracking-wide`;
 
-  const submitLabel =
-    docType === "invoice"
+  const submitLabel = editMode
+    ? "REBUILD DOCUMENT"
+    : docType === "invoice"
       ? "BUILD MY INVOICE"
       : docType === "contract"
         ? "BUILD MY CONTRACT"
